@@ -1,0 +1,84 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"Indicates what fields are available at the top level of a query operation."
+type Query {
+    "Find a single user by an identifying attribute."
+    user(
+      "Search by primary key."
+      id: ID @eq @rules(apply: ["prohibits:email", "required_without:email"])
+
+      "Search by email address."
+      email: String @eq @rules(apply: ["prohibits:id", "required_without:id", "email"])
+    ): User @find
+
+    "List multiple users."
+    users(
+      "Filters by username. Accepts SQL LIKE wildcards `%` and `_`."
+      username: String @where(operator: "like")
+    ): [User!]! @paginate(defaultCount: 10)
+}
+
+type Query {
+    getUsers: [User!]! @all
+    getUserById(id: Int! @eq): User
+    getByUsername(username: String! @eq): User @first
+}
+
+type User {
+    id: ID!
+    firstname: String!
+    lastname: String!
+    email: String! @rules(apply: ["required", "email", "unique:users,email"])
+    mobile: String! 
+    username: String! @rules(apply: ["required", "email", "unique:users,username"])
+    password: String!
+    role_id: Int!    
+    roles: [String!]! 
+    isactivated: Int!
+    isblocked: Int!
+    mailtoken: Int!
+    profilepic: String!
+    secret: String      #allow null 
+    qrcodeurl: String   #allow null
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+#USER REGISTRATION
+type SignupResponse {
+    message: String!
+    user: User
+}
+
+input SignupInput {
+    firstname: String!
+    lastname: String!
+    email: String!
+    mobile: String!
+    username: String!
+    password: String!
+}
+
+#@rules(apply: ["required", "min:3"]
+
+#USER LOGIN @rules(apply: ["required", "string", "unique:users,username"])
+input LoginInput {
+    username: String!
+    password: String!
+}
+
+type LoginResponse {
+    token: String
+    message: String
+    user: User
+}
+
+
+type Mutation {
+    registerUser(input: SignupInput! @spread): SignupResponse! @field(resolver: "App\\GraphQL\\Mutations\\CreateUser")
+    signIn(input: LoginInput! @spread): LoginResponse! @field(resolver: "App\\GraphQL\\Mutations\\UserLogin")
+}
+
+
+
