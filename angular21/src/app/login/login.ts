@@ -59,6 +59,7 @@ export class Login implements AfterViewInit{
                   this.loginMessage.set(res.errors[0].message);
                   setTimeout(() => {
                     this.loginMessage.set('');
+                    this.isDisabled = false;
                   }, 3000);
                   return;
             } 
@@ -78,6 +79,7 @@ export class Login implements AfterViewInit{
             } else {
               this.sessionStorageService.setItem("USERNAME", res.data.signIn.user.username);  
               this.loginMessage.set('');
+              this.isDisabled = false;
               $("#reset").trigger('click');
               $("#hideLogin").trigger('click');
               this.router.navigate(['/']); 

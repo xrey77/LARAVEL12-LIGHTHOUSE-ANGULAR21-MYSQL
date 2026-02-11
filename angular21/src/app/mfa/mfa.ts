@@ -61,9 +61,17 @@ export class Mfa {
        }
        this.mfaService.sendMfaValidation(this.userId, formData, this.userToken).subscribe({
          next: (res: any) => {
-          
-              this.message.set(res.message);
-              this.sessionStorageService.setItem("USERNAME", res.username);  
+
+              if (res.errors) {
+                this.message.set(res.errors[0].message);
+                setTimeout(() => {
+                  this.message.set('');
+                }, 3000);
+                return;
+              } 
+
+              this.message.set(res.data.mfaVerification.message);
+              this.sessionStorageService.setItem("USERNAME", res.data.mfaVerification.user.username);  
               setTimeout(() => {
                 this.message.set('');
                 $("#reset").trigger('click')
@@ -72,7 +80,7 @@ export class Mfa {
             
           },
           error: (err: any) => {
-            this.message.set(err.error.message);
+            this.message.set(err.errors[0].message);
             setTimeout(() => {
               $("#reset").trigger('click')
               this.message.set('');

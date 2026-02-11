@@ -22,7 +22,6 @@ final readonly class UserLogin
         }
 
         $secret = config('services.api_service.key');
-        // $issuer = config('services.issuer_service.key');        
         $credentials = ['username' => $args['username'], 'password' => $args['password']];                
         if (Auth::attempt($credentials)) {
             

@@ -4,7 +4,6 @@ namespace App\GraphQL\Mutations;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-// use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Error\Error;
 
 final readonly class CreateUser

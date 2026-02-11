@@ -28,7 +28,7 @@ export class Profile implements OnInit  {
   });
 
   profileData: any;
-  userId: any;
+  userId: number = 0;
   jwttoken: any;
   enableMfa: any = [];
   mfa: boolean = false;
@@ -51,7 +51,7 @@ export class Profile implements OnInit  {
   
     const uid = this.sessionStorageSevice.getItem('USERID');
     if (uid) {
-     this.userId =  uid;parseInt(uid);
+     this.userId =  parseInt(uid);
     }
 
     const jwt = this.sessionStorageSevice.getItem('TOKEN');
@@ -61,28 +61,37 @@ export class Profile implements OnInit  {
     this.profileMsg.set("retrieving records...");
     this.profileService.getUserbyId(this.userId, this.jwttoken).subscribe({
      next: (res: any) => {
-           console.log(res);
-          //  this.profileMsg.set(res.message);
-          //  const formData = {
-          //    firstname: res.user.firstname,
-          //    lastname: res.user.lastname,
-          //    mobile: res.user.mobile
-          //   }
-          //   this.profileForm.setValue(formData);
-          //   $("#email").val(res.user.email);
-          //   let userpicture = `http://127.0.0.1:8000/users/${res.user.profilepic}`
-          //   this.profilepic = userpicture;
-          //   if (res.user.qrcodeurl !== null) {
-          //     this.qrcodeurl = res.user.qrcodeurl;  
-          //     this.mfa = true;
-          //   } else {
-          //     this.mfa = false;
-          //     let qrcode: any = "http://127.0.0.1:8000/images/qrcode.png";
-          //     this.qrcodeurl = qrcode;
-          //   }
-          //   setTimeout(() => {
-          //     this.profileMsg.set('');
-          //   }, 1000);
+
+          if (res.errors) {
+                this.profileMsg.set(res.errors[0].message);
+                setTimeout(() => {
+                  this.profileMsg.set('');
+                }, 3000);
+                return;
+          } 
+
+           const formData = {            
+             firstname: res.data.getUserById.firstname,
+             lastname: res.data.getUserById.lastname,
+             mobile: res.data.getUserById.mobile
+            }
+            this.profileForm.setValue(formData);
+            $("#email").val(res.data.getUserById.email);
+            let userpicture: any = `http://127.0.0.1:8000/users/${res.data.getUserById.profilepic}`
+            this.profilepic = userpicture;
+
+            if (res.data.getUserById.qrcodeurl !== null) {
+              this.qrcodeurl = res.data.getUserById.qrcodeurl;  
+              this.mfa = true;
+            } else {
+              this.mfa = false;
+              let qrcode: any = "/images/qrcode.png";
+              this.qrcodeurl = qrcode;
+            }
+
+            setTimeout(() => {
+              this.profileMsg.set('');
+            }, 1000);
    
        },
        error: (err: any) => {
@@ -101,35 +110,44 @@ export class Profile implements OnInit  {
     $("#mfa2").hide();  
   }
 
-
   changeProfilepic(event: any) {
-    $("#pix").attr('src',URL.createObjectURL(event.target.files[0]));
-    
-    const formdata = new FormData();
-    formdata.append('profilepic',event.target.files[0]);
-    this.profileService.UploadPicture(this.userId ,formdata, this.jwttoken).subscribe({
-      next: (res: any) => {
-        this.profileMsg.set(res.message);
-        $('#twofactor').prop('checked', false);
-        $('#changepwd').prop('checked', false);      
-        setTimeout(() => {
-          let userpicture = `http://localhost:5270/users/${res.profilepic}`
-          this.profilepic = userpicture;
-          this.sessionStorageSevice.setItem('USERPIC', userpicture);
-          this.profileMsg.set('');
-          window.location.reload();
-        }, 3000);
-      },
-      error: (err: any) => {
+    const file: File = event.target.files[0];
+    if (file) {
+        this.profileMsg.set('Uploading picture, please wait...');
+        $("#pix").attr('src',URL.createObjectURL(file));    
+        this.profileService.UploadPicture(this.userId ,file, this.jwttoken).subscribe({
+          next: (res: any) => {
 
-          this.profileMsg.set(err.error.message);
-          setTimeout(() => {
-            this.profileMsg.set('');
-          }, 3000);
+            if (res.errors) {
+                  this.profileMsg.set(res.errors[0].message);
+                  setTimeout(() => {
+                    this.profileMsg.set('');
+                  }, 3000);
+                  return;
+            } 
 
-      }
+            this.profileMsg.set(res.data.uploadPicture.message);
+            $('#twofactor').prop('checked', false);
+            $('#changepwd').prop('checked', false);      
+            setTimeout(() => {
+              let userpicture = `http://127.0.0.1:8000/users/${res.data.uploadPicture.user.profilepic}`
+              this.profilepic = userpicture;
+              this.sessionStorageSevice.setItem('USERPIC', userpicture);
+              this.profileMsg.set('');
+              window.location.reload();
+            }, 3000);
+          },
+          error: (err: any) => {  
+              console.log("may error...");
+              console.log(err.errors[0]);
+              this.profileMsg.set(err.errors[0].message);
+              setTimeout(() => {
+                this.profileMsg.set('');
+              }, 3000);
 
-    });    
+          }      
+        });
+    }     
   }
 
   changePassword() {
@@ -191,14 +209,23 @@ export class Profile implements OnInit  {
       this.profileService.sendNewpasswordRequest(this.userId, formData, this.jwttoken).subscribe({
         next: (res: any) => {
 
-          this.profileMsg.set(res.message);
+
+          if (res.errors) {
+                this.profileMsg.set(res.errors[0].message);
+                setTimeout(() => {
+                  this.profileMsg.set('');
+                }, 3000);
+                return;
+          } 
+
+          this.profileMsg.set(res.data.changePassword.message);
           setTimeout(() => {
             this.profileMsg.set('');
           }, 3000);
 
       },
       error: (err: any) => {
-        this.profileMsg.set(err.error.message);
+        this.profileMsg.set(err.errors[0].message);
         setTimeout(() => {
           this.profileMsg.set('');
         }, 3000);
@@ -212,24 +239,32 @@ export class Profile implements OnInit  {
 
   enableMFA(event: any) {
     event.preventDefault();    
-    this.enableMfa = {
-      TwoFactorEnabled: true
-    }
-
-    this.profileService.ActivateMFA(this.userId, this.enableMfa, this.jwttoken).subscribe({
+    this.profileMsg.set("activating...");
+    this.profileService.ActivateMFA(this.userId, true, this.jwttoken).subscribe({
       next: (res: any) => {
-        
-          this.profileMsg.set(res.message);
-          setTimeout(() => {
-            this.profileMsg.set('');
-            this.mfa = true;
-            this.qrcodeurl = res.qrcodeurl;
-          }, 3000);
+
+          if (res.errors) {
+            alert("may error");
+            this.profileMsg.set(res.errors[0].message);
+            setTimeout(() => {
+              this.profileMsg.set('');
+            }, 3000);
+            return;
+          } 
+
+         this.profileMsg.set(res.data.mfaActivation.message);
+         this.qrcodeurl = res.data.mfaActivation.user.qrcodeurl;
+
+         console.log(res.data.mfaActivation);
+          // setTimeout(() => {
+          //   this.profileMsg.set('');
+          //   this.mfa = true;
+          // }, 3000);
 
         },
         error: (err: any) => {
 
-          this.profileMsg.set(err.error.message);
+          this.profileMsg.set(err.errors[0].message);
           setTimeout(() => {
             this.profileMsg.set('');
             this.qrcodeurl = null;
@@ -241,21 +276,27 @@ export class Profile implements OnInit  {
 
   disableMFA(event: any) {
     event.preventDefault();      
-    this.enableMfa = {
-      TwoFactorEnabled: false
-    }
-
-    this.profileService.ActivateMFA(this.userId, this.enableMfa, this.jwttoken).subscribe({
+    this.profileMsg.set("de-activating...");
+    this.profileService.ActivateMFA(this.userId, false, this.jwttoken).subscribe({
       next: (res: any) => {
 
-        this.profileMsg.set(res.message);
-        let qrcode: any = 'http://localhost:5270/images/qrcode.png';
+          if (res.errors) {
+            this.profileMsg.set(res.errors[0].message);
+            setTimeout(() => {
+              this.profileMsg.set('');
+            }, 3000);
+            return;
+          } 
+
+          this.profileMsg.set(res.data.mfaActivation.message);
+
+        let qrcode: any = '/images/qrcode.png';
         this.qrcodeurl = qrcode ;
 
       },
       error: (err: any) => {
 
-        this.profileMsg.set(err.error.message);
+        this.profileMsg.set(err.errors[0].message);
         setTimeout(() => {
           this.profileMsg.set('');
         }, 3000);
@@ -278,14 +319,23 @@ export class Profile implements OnInit  {
           'mobile': this.profileForm.get('mobile')?.value};
         this.profileService.sendProfileRequest(this.userId,jsonData, this.jwttoken).subscribe({
           next: (res: any) => {
-            this.profileMsg.set(res.message);
+
+            if (res.errors) {
+              this.profileMsg.set(res.errors[0].message);
+              setTimeout(() => {
+                this.profileMsg.set('');
+              }, 3000);
+              return;
+            } 
+
+            this.profileMsg.set(res.data.updateProfile.message);
             setTimeout(() => {
               this.profileMsg.set('');
             }, 3000);
 
           },
           error: (err: any) => {
-            this.profileMsg.set(err.error.message);
+            this.profileMsg.set(err.errors[0].message);
             setTimeout(() => {
               this.profileMsg.set('');
             }, 3000);
@@ -295,6 +345,5 @@ export class Profile implements OnInit  {
       });      
     });
   }  
-
 
 }

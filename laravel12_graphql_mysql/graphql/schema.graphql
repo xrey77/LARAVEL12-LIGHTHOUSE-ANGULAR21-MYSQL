@@ -1,8 +1,10 @@
 "A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
 
 "Indicates what fields are available at the top level of a query operation."
 type Query {
+
     "Find a single user by an identifying attribute."
     user(
       "Search by primary key."
@@ -17,13 +19,12 @@ type Query {
       "Filters by username. Accepts SQL LIKE wildcards `%` and `_`."
       username: String @where(operator: "like")
     ): [User!]! @paginate(defaultCount: 10)
-}
 
-type Query {
     getUsers: [User!]! @all
     getUserById(id: Int! @eq): User
     getByUsername(username: String! @eq): User @first
 }
+
 
 type User {
     id: ID!
@@ -32,7 +33,7 @@ type User {
     email: String! @rules(apply: ["required", "email", "unique:users,email"])
     mobile: String! 
     username: String! @rules(apply: ["required", "email", "unique:users,username"])
-    password: String!
+    password: String! #@rules(apply: ["required", "min:3"]
     role_id: Int!    
     roles: [String!]! 
     isactivated: Int!
@@ -45,7 +46,7 @@ type User {
     updated_at: DateTime!
 }
 
-#USER REGISTRATION
+#=====USER REGISTRATION=====
 type SignupResponse {
     message: String!
     user: User
@@ -60,9 +61,7 @@ input SignupInput {
     password: String!
 }
 
-#@rules(apply: ["required", "min:3"]
-
-#USER LOGIN @rules(apply: ["required", "string", "unique:users,username"])
+#=====USER LOGIN===========
 input LoginInput {
     username: String!
     password: String!
@@ -74,10 +73,72 @@ type LoginResponse {
     user: User
 }
 
+#======UPDATE PROFILE======
+input ProfileInput {
+    id: Int!
+    firstname: String!
+    lastname: String!
+    mobile: String!
+}
+
+type ProfileResponse {
+    message: String
+    user: User
+}
+
+#=====CHANGE PASSWORD======
+input PasswordInput {
+    id: Int!
+    password: String!
+}
+
+type PasswordResponse {
+    message: String
+    user: User
+}
+
+#=====Multi-Factor Enable / Disable====
+input MfaInput {
+    id: Int!
+    twofactorenabled: Boolean! #@rules(apply: ["boolean"])
+}
+
+type MfaResponse {
+    message: String
+    user: User
+}
+
+#=====Multi-Factor Authentication Verification========
+input VerificationInput {
+    id: Int!
+    otp: String!
+}
+
+type VerificationResponse {
+    message: String
+    user: User
+}
+
+#====Upload Picture===============
+input UploadInput {
+    id: Int!
+    profilepic: Upload!
+}
+
+type UploadResponse {
+    message: String
+    user: User
+}
+
 
 type Mutation {
     registerUser(input: SignupInput! @spread): SignupResponse! @field(resolver: "App\\GraphQL\\Mutations\\CreateUser")
     signIn(input: LoginInput! @spread): LoginResponse! @field(resolver: "App\\GraphQL\\Mutations\\UserLogin")
+    updateProfile(input: ProfileInput! @spread): ProfileResponse! @field(resolver: "App\\GraphQL\\Mutations\\UpdateProfile")
+    changePassword(input: PasswordInput! @spread): PasswordResponse! @field(resolver: "App\\GraphQL\\Mutations\\ChangePassword")
+    mfaActivation(input: MfaInput! @spread): MfaResponse! @field(resolver: "App\\GraphQL\\Mutations\\MfaActivation")
+    mfaVerification(input: VerificationInput! @spread): VerificationResponse! @field(resolver: "App\\GraphQL\\Mutations\\MfaVerification")
+    uploadPicture(id: Int! profilepic: Upload! @spread): UploadResponse! @field(resolver: "App\\GraphQL\\Mutations\\UploadPicture")
 }
 
 

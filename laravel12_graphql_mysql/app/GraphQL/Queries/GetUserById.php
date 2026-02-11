@@ -14,23 +14,29 @@ final readonly class GetUserById
      */
     public function __invoke($_, array $args): ?User
     {
-        return User::find($args['id']);
+        $user = User::find($args['id']);
+        if (!$user) {
+            throw new Error('User ID not found.');
+        }
+        return $user;
     }
 }
 
 #Request
-// query { 
-//   getUserById {
-//     id
-//     firstname
-//     lastname
-//     email
-//     mobile
-//     username
-//   }
+// query getUserById($id: Int!) {
+//     getUserById(id: $id) {
+//         id
+//         firstname
+//         lastname
+//         email
+//         mobile
+//         username
+//         profilepic
+//         qrcodeurl
+//     }
 // }
 
 #Query Variables
 // {
-//   id: 1
+//   "id": 1
 // }

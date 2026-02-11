@@ -7,17 +7,31 @@ import {  Observable } from 'rxjs';
 })
 
 export class Mfaservice {
+  private apiUrl = "http://127.0.0.1:8000/graphql";  
   private http = inject(HttpClient);
 
-public sendMfaValidation(id: any, userdtls: any, token: any): Observable<any> {
+public sendMfaValidation(idno: number, userdtls: any, token: any): Observable<any> {
 
-  const options = {
-    headers: new HttpHeaders({
-      'Content-Type':  'application/json',
-      'Authorization': `Bearer ${token}`
-    })
-  };
-    return this.http.patch(`http://localhost:5270/api/mfa/verifytotp/${id}` ,userdtls, options);
+      const TOTP_QUERY = `
+        mutation MfaVerification($input: VerificationInput!) {
+            mfaVerification(input: $input) {
+                message
+                user {
+                    id
+                    username
+                }
+            }
+        }
+      `
+      return this.http.post(this.apiUrl, {
+      query: TOTP_QUERY,
+      variables: { 
+        input: {
+          "id": idno,
+          "otp": userdtls.otp,
+        }
+       }
+    });
 };
   
 }
