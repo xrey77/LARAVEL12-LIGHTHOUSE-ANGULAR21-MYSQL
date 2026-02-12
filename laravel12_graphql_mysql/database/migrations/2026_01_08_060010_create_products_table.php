@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('saleprice')->default(0);
             $table->string('productpicture');
             $table->integer('alertstocks')->default(0);
-            $table->integer('criticalstrocks')->default(0);
+            $table->integer('criticalstocks')->default(0);
             $table->timestamps();
         });        
     }

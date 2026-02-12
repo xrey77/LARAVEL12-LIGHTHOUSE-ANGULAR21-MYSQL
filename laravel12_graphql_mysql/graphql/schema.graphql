@@ -27,16 +27,26 @@ type Query {
     getByUsername(username: String! @eq): User @first
 
     productsList(first: Int): [Product!]! @paginate(type: PAGINATOR)
-    """
-    productsSearch(
-        limit: Int
-        page: Int
-        keyword: String
-    ): [Product!]! @paginate(resolver: "App\\GraphQL\\Queries\\ProductsSearch" defaultCount: 5)
-    """
     productsSearch(
         keyword: String
     ): [Product!]! @paginate(resolver: "App\\GraphQL\\Queries\\ProductsSearch" defaultCount: 5)
+
+    salesChart: [Sale]! @all
+#    productReport: String!
+    productReport: PdfResponse! @field(resolver: "App\\GraphQL\\Queries\\ProductReport")
+}
+
+type PdfResponse {
+    filename: String!
+    base64: String!
+}
+
+
+
+type Sale {
+    id: ID!
+    amount : Float!
+    date: String!
 }
 
 type Product {

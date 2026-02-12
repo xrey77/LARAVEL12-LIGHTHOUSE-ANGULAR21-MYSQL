@@ -9,6 +9,7 @@ import { NgIf } from '@angular/common';
   templateUrl: './productreport.html',
   styleUrl: './productreport.scss',
 })
+
 export class Productreport implements OnInit {
   private productsService = inject(Productservice);
   private sanitizer = inject(DomSanitizer);
@@ -33,5 +34,11 @@ export class Productreport implements OnInit {
       error: (err: any) => console.error('Error downloading PDF:', err)
     });
   }
+
+ ngOnDestroy() {
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+    }
+  }  
 
 }
