@@ -9,10 +9,10 @@ import { Footer } from '../footer/footer';
   styleUrl: './prodlist.scss'
 })
 export class Prodlist {
-  message: any;
-  page: any = 1;
+  message: string = '';
+  page: number = 1;
   totpage: any;
-  products: any;
+  products: any = [];
   totalrecs: any;
 
   constructor(
@@ -29,20 +29,29 @@ export class Prodlist {
   ngOnInit(): void {
   }
 
-  async productList(page: any) {
+  async productList(page: number) {
     this.productsService.sendProductRequest(page).subscribe({
       next: (res: any) => {
-        this.page = res.page;
-        this.totpage = res.totpage;
-        this.products = res.products;
-        this.totalrecs = res.totalrecords;
+        
+          if (res.data.errors) {
+            this.message = res.errors[0].message;
+            setTimeout(() => {
+               this.message = '';
+            }, 3000);
+          } 
+
+        this.page = res.data.productsList.paginatorInfo.currentPage;
+        this.totpage = res.data.productsList.paginatorInfo.lastPage
+        this.products = res.data.productsList.data;
+        this.totalrecs = res.data.productsList.paginatorInfo.total
         window.setTimeout(() => {
           this.message = '';
         }, 1000);
 
     },
     error: (err: any) => {
-      this.message = err.error.message;
+      const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;
+      this.message = errorMsg;
         window.setTimeout(() => {
           this.message = '';
         }, 3000);

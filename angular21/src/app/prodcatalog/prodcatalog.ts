@@ -12,44 +12,54 @@ export class Prodcatalog {
 
   message: any;
   page: number = 1;
-  totpage: any;
+  totpage: any = [];
   totalrecs: any;
   products: any;
 
   constructor(
     private productsService: Productservice
   ) { 
-    this.productList(this.page);
+    this.message = "please wait..";
+    this.productsCatalog(this.page);
   }
 
-  async productList(page: any) {
+  async productsCatalog(page: any) {
     this.productsService.sendProductRequest(page).subscribe({
       next: (res: any) => {
-          this.page = res.page;
-          this.totpage = res.totpage;
-          this.products = res.products;
-          this.totalrecs = res.totalrecords;
+
+          if (res.data.errors) {
+            this.message = res.errors[0].message;
+            setTimeout(() => {
+               this.message = '';
+            }, 3000);
+          } 
+
+
+          this.page = res.data.productsList.paginatorInfo.currentPage;
+          this.totpage = res.data.productsList.paginatorInfo.lastPage
+          this.products = res.data.productsList.data;
+          this.totalrecs = res.data.productsList.paginatorInfo.total
+
           window.setTimeout(() => {
             this.message = '';
           }, 1000);
 
     },
     error: (err: any) => {
-      
-        this.message = err.error.message;
+        const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;      
+        this.message = errorMsg;
         window.setTimeout(() => {
           this.products = [];
           this.message = '';
         }, 3000);
       }
     });
-
   }
 
   lastPage(event: any) {
     event.preventDefault();    
     this.page = this.totpage;
-    this.productList(this.page);
+    this.productsCatalog(this.page);
     return;    
   }
 
@@ -59,7 +69,7 @@ export class Prodcatalog {
       return;
     }
     this.page++;
-    return this.productList(this.page);
+    return this.productsCatalog(this.page);
   }
 
   prevPage(event: any) {
@@ -68,7 +78,7 @@ export class Prodcatalog {
       return;
     }
     this.page = this.page - 1;
-    this.productList(this.page);
+    this.productsCatalog(this.page);
     return;    
 
   }
@@ -76,7 +86,7 @@ export class Prodcatalog {
   firstPage(event: any) {
     event.preventDefault();    
     this.page = 1;
-    this.productList(this.page);
+    this.productsCatalog(this.page);
     return;    
   }  
 

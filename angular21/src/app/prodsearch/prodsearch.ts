@@ -13,9 +13,9 @@ import { Footer } from '../footer/footer';
 export class Prodsearch {
   searchkey: any;
   message: any;
-  products: any;
+  products: any = [];
   totalrec: number = 0;
-  page: any = 1;
+  page: number = 1;
   totpage: any;
   keyword: any;
 
@@ -37,22 +37,35 @@ export class Prodsearch {
   async submitSearchForm() {
     
     if (this.productsearchForm.valid) {
+      this.message = "searching...";
       this.keyword = this.productsearchForm.get('searchkey')?.value;
       this.productsService.sendSearchRequest(this.page, this.keyword).subscribe({
         next: (res: any) => {
 
-        this.products = res.products;
-        this.page = res.page;
-        this.totpage = res.totpage;
-        this.totalrec = res.totalrecords;
-          
-        window.setTimeout(() => {
-          this.message = '';
-        }, 3000);
+          if (res.data.errors) {
+            this.message = res.errors[0].message;
+            setTimeout(() => {
+               this.message = '';
+              this.products=[];
+            }, 3000);
+          } 
+
+          this.page = res.data.productsSearch.paginatorInfo.currentPage;
+          this.totpage = res.data.productsSearch.paginatorInfo.lastPage;
+          this.totalrec = res.data.productsSearch.paginatorInfo.total;
+          this.products = res.data.productsSearch.data;
+
+          if (res.data.productsSearch.data.length === 0) {
+            this.message = "Product(s) not found.";
+            window.setTimeout(() => { this.message = ''; this.products=[];}, 3000);
+            return;
+          }
+          window.setTimeout(() => { this.message = ''; }, 1000);
   
       },
       error: (err: any) => {          
-          this.message = err.error.message;
+          const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;
+          this.message = errorMsg;
           window.setTimeout(() => {
             this.products=[];
             this.message = '';
@@ -66,14 +79,23 @@ export class Prodsearch {
 
       this.productsService.sendSearchRequest(this.page, this.keyword).subscribe({      
       next: (res: any) => {
-        this.products = res.products;
-        this.page = res.page;
-        this.totpage = res.totpage;
-        this.totalrec = res.totalrecords;  
+
+          if (res.data.errors) {
+            this.message = res.errors[0].message;
+            setTimeout(() => {
+               this.message = '';
+              this.products=[];
+            }, 3000);
+          } 
+
+          this.page = res.data.productsSearch.paginatorInfo.currentPage;
+          this.totpage = res.data.productsSearch.paginatorInfo.lastPage
+          this.totalrec = res.data.productsSearch.paginatorInfo.total;
+          this.products = res.data.productsSearch.data;
       },
       error: (err: any) => {
-  
-        this.message = err.error.message;
+        const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;
+        this.message = errorMsg;
           window.setTimeout(() => {
             this.message = '';
           }, 3000);

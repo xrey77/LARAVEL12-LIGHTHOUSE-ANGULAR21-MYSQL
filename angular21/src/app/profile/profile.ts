@@ -240,35 +240,29 @@ export class Profile implements OnInit  {
   enableMFA(event: any) {
     event.preventDefault();    
     this.profileMsg.set("activating...");
-    this.profileService.ActivateMFA(this.userId, true, this.jwttoken).subscribe({
+    this.profileService.ActivateMFA(this.userId, true).subscribe({
       next: (res: any) => {
-
-          if (res.errors) {
-            alert("may error");
+          if (res.data.errors) {
             this.profileMsg.set(res.errors[0].message);
             setTimeout(() => {
-              this.profileMsg.set('');
+               this.profileMsg.set('');
             }, 3000);
-            return;
           } 
-
-         this.profileMsg.set(res.data.mfaActivation.message);
-         this.qrcodeurl = res.data.mfaActivation.user.qrcodeurl;
-
-         console.log(res.data.mfaActivation);
-          // setTimeout(() => {
-          //   this.profileMsg.set('');
-          //   this.mfa = true;
-          // }, 3000);
-
+          this.profileMsg.set(res.data.mfaActivation.message);
+          this.qrcodeurl = res.data.mfaActivation.user.qrcodeurl;
+          setTimeout(() => {
+              this.profileMsg.set('');
+          }, 3000);
+          
         },
         error: (err: any) => {
-
-          this.profileMsg.set(err.errors[0].message);
-          setTimeout(() => {
-            this.profileMsg.set('');
-            this.qrcodeurl = null;
-          }, 3000);
+            const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;          
+            this.profileMsg.set(errorMsg);
+            setTimeout(() => {
+              this.profileMsg.set('');
+              return;
+              // this.qrcodeurl = null;
+            }, 3000);
   
         }  
     });
@@ -277,10 +271,10 @@ export class Profile implements OnInit  {
   disableMFA(event: any) {
     event.preventDefault();      
     this.profileMsg.set("de-activating...");
-    this.profileService.ActivateMFA(this.userId, false, this.jwttoken).subscribe({
+    this.profileService.ActivateMFA(this.userId, false).subscribe({
       next: (res: any) => {
 
-          if (res.errors) {
+          if (res.data.errors) {
             this.profileMsg.set(res.errors[0].message);
             setTimeout(() => {
               this.profileMsg.set('');

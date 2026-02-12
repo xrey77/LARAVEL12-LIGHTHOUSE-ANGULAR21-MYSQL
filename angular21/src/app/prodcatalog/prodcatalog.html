@@ -7,13 +7,13 @@
     @for (product of products; track product.id) {
         <div class="col-md-4">
         <div class="card mx-1 mt-2">
-          <img src="{{`http://localhost:5270/products/${product.productPicture}`}}" class="card-img-top" alt="Product Image">
+          <img src="{{`http://127.0.0.1:8000/products/${product.productpicture}`}}" class="card-img-top" alt="Product Image">
           <div class="card-body card-body-height">
             <h5 class="card-title">Descriptions</h5>
             <p class="card-text">{{product.descriptions}}</p>
           </div>
           <div class="card-footer">
-            <p class="card-text text-danger"><span class="text-dark">PRICE :</span>&nbsp;<strong>{{toDecimal(product.sellPrice)}}</strong></p>
+            <p class="card-text text-danger"><span class="text-dark">PRICE :</span>&nbsp;<strong>{{toDecimal(product.sellprice)}}</strong></p>
           </div>  
         </div>
     </div>
@@ -32,6 +32,9 @@
 
         </ul>
       </nav>
+      <h3 class="text-white">&nbsp;&nbsp;&nbsp;Total Records : {{totalrecs}}</h3>
+      <div class="text-warning">&nbsp;&nbsp;&nbsp;{{message}}</div>
+
       </div>
       <br/><br/>
         <app-footer class="text-white"></app-footer>

@@ -36,10 +36,7 @@ final readonly class MfaVerification
                 'user' => $user,
             ];
         } else {
-            return [
-                'message' => 'Invalid OTP code, please try again.',
-                'user' => $user,
-            ];
+            throw new Error('Invalid OTP code, please try again.'); 
         }
 
         throw new Error('Failed to validate OTP code.');

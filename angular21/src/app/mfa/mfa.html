@@ -4,7 +4,7 @@
 		<button (click)="closeMfa()" type="button" class="btn-close" aria-label="Close"></button>
 	</div>
 	<div class="modal-body">
-    <form [formGroup]="mfaForm" (ngSubmit)="submitMfaForm()" autocomplete="off">
+    <form [formGroup]="mfaForm" (ngSubmit)="submitMfaForm($event)" autocomplete="off">
       <div class="mb-3">
         <input type="text" required formControlName="otpcode" name="otpcode" class="form-control border-warning" placeholder="enter 6-digit OTP code">
       </div>            

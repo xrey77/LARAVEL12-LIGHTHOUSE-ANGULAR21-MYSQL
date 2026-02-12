@@ -28,7 +28,6 @@ final readonly class MfaActivation
         if (!$user) {
             throw new Error('User ID not found.');
         }
-        print($args["twofactorenabled"]);
 
         if ($args["twofactorenabled"] === true) {
                 $issuer = config('services.issuer_service.key');
@@ -54,15 +53,15 @@ final readonly class MfaActivation
                 // Encode the image string to base64 for embedding in the view
                 $qrcode_base64 = base64_encode($qrcode_image_string);
 
-                $qrcode = 'data:image/svg+xml;base64,' . $qrcode_base64;
+                $qrcode = 'data:image/png;base64,' . $qrcode_base64;
                 $user->update([
                     'secretkey' => encrypt($secretKey),
                     'qrcodeurl' => $qrcode
                 ]);
 
                 return [
-                    'message' => 'Multi-Factor Authenticator has been enabled.',
-                    'user' => $user,
+                    'message' => 'Multi-Factor Authenticator has been enabled, please scan the QRCODE using your Mobile Google or Microsoft Authenticator',
+                    'user' => $user, 
                 ];
         } else {
 
@@ -77,7 +76,6 @@ final readonly class MfaActivation
 
         }
 
-        throw new Error('Failed to activate Multi-Factor Authenticator.');
     }
 }
 
@@ -87,6 +85,7 @@ final readonly class MfaActivation
 //         message
 //         user {
 //             id
+//             qrcodeurl
 //         }
 //     }
 // }

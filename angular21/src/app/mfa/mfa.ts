@@ -18,7 +18,7 @@ export class Mfa {
   @Input() templateRefMfa?: TemplateRef<any>;
   message = signal('');
   isDisabled: boolean = false;
-  userId: any = '';
+  userId: number = 0;
   userToken: any = '';
 
   constructor(    
@@ -41,10 +41,11 @@ export class Mfa {
   });
 
 
-  submitMfaForm() {
+  submitMfaForm(event: any) {
+    event.preventDefault();
     const uid = this.sessionStorageService.getItem('USERID');
     if (uid) {
-      this.userId = uid;
+      this.userId = parseInt(uid);
     }
 
     const uToken = this.sessionStorageService.getItem('TOKEN');
@@ -66,18 +67,17 @@ export class Mfa {
                 this.message.set(res.errors[0].message);
                 setTimeout(() => {
                   this.message.set('');
+                  return true;
                 }, 3000);
-                return;
-              } 
-
-              this.message.set(res.data.mfaVerification.message);
-              this.sessionStorageService.setItem("USERNAME", res.data.mfaVerification.user.username);  
-              setTimeout(() => {
-                this.message.set('');
-                $("#reset").trigger('click')
-                location.reload();
-              }, 6000);
-            
+              } else {
+                this.message.set(res.data.mfaVerification.message);
+                this.sessionStorageService.setItem("USERNAME", res.data.mfaVerification.user.username);  
+                setTimeout(() => {
+                  this.message.set('');
+                  $("#reset").trigger('click')
+                  return location.reload();
+                }, 6000);
+              }
           },
           error: (err: any) => {
             this.message.set(err.errors[0].message);

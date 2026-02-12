@@ -6,28 +6,72 @@ import {  Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class Productservice {
-
+  private apiUrl = "http://127.0.0.1:8000/graphql";
   private http = inject(HttpClient);
 
-  public sendSearchRequest(page: any, keyword: any): Observable<any>
+  public sendSearchRequest(page: number, keyword: any): Observable<any>
   {
-    const options = {
-      headers: new HttpHeaders({
-        'Content-Type':  'application/json',
-      })
-    };
-    return this.http.get<any>(`http://localhost:5270/api/products/search/${page}/${keyword}`, options);
+    const SEARCH_QUERY = `
+      query ProductsSearch($keyword: String, $first: Int, $page: Int) {
+          productsSearch(keyword: $keyword, first: $first, page: $page) {
+            data {
+                id
+                category
+                descriptions
+                qty
+                unit
+                sellprice
+                productpicture
+            }
+            paginatorInfo {
+                currentPage
+                lastPage
+                total
+                hasMorePages
+            }
+          }
+      }
+    `
+      return this.http.post(this.apiUrl, {
+      query: SEARCH_QUERY,
+      variables: { 
+          "page": page,
+          "keyword": keyword
+       }
+    });
+
   }
 
-  public sendProductRequest(page: any): Observable<any>
+  public sendProductRequest(page: number): Observable<any>
   {
-    const options = {
-      headers: new HttpHeaders({
-        'Content-Type':  'application/json'
-        // 'Authorization': 'jwt-token'
-      })
-    };
-    return this.http.get<any>(`http://localhost:5270/api/products/list/${page}`, options);
+    const LIST_QUERY = `
+      query ProductsList($page: Int!) {
+          productsList(first: 5, page: $page) {
+            data {
+                id
+                category
+                descriptions
+                qty
+                unit
+                sellprice
+                productpicture
+            }
+            paginatorInfo {
+                currentPage
+                lastPage
+                total
+                hasMorePages
+            }
+          }
+      }
+    `
+      return this.http.post(this.apiUrl, {
+      query: LIST_QUERY,
+      variables: { 
+          "page": page
+       }
+    });
+
   } 
   
   public showPdfReport(): Observable<Blob> {

@@ -36,8 +36,7 @@ export class Profileservice {
 
   }
 
-  public ActivateMFA(idno: number, isenabled: boolean, token: any) {
-    console.log(isenabled);
+  public ActivateMFA(idno: number, isenabled: boolean) {
     const MFAACTIVATIOIN_QUERY = `
         mutation MfaActivation($input: MfaInput!) {
             mfaActivation(input: $input) {
