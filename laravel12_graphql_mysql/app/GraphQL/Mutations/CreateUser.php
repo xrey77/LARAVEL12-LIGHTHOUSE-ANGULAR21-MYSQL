@@ -5,6 +5,8 @@ namespace App\GraphQL\Mutations;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use GraphQL\Error\Error;
+use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
+use GraphQL\Type\Definition\ResolveInfo;  
 
 final readonly class CreateUser
 {   
@@ -15,7 +17,7 @@ final readonly class CreateUser
      * @param  ResolveInfo  $resolveInfo
      * @return User|null
      */
-    public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): ?User
+    public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): array
     {
         $email = User::where('email', $args['email'])->first();
         if ($email) {

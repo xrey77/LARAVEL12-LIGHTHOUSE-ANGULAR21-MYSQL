@@ -9,6 +9,7 @@ import { Prodsearch } from './prodsearch/prodsearch';
 import { ErrorPageComponent } from './error-page-component/error-page-component';
 import { Productreport } from './productreport/productreport';
 import { Saleschart } from './saleschart/saleschart';
+import { ProductPdfReport } from './product-pdf-report/product-pdf-report';
 
 export const routes: Routes = [
     { path: '', component: Home, title: 'Apple Inc.'},
@@ -21,5 +22,6 @@ export const routes: Routes = [
     { path: 'productsearch', component: Prodsearch, title: 'Product Search' },
     { path: 'productreport', component: Productreport, title: 'Product Search' },
     { path: 'saleschart', component: Saleschart, title: 'Product Search' },
+    { path: 'pdfreport', component: ProductPdfReport, title: 'Product Pdf Report' },
     { path: '**', component: ErrorPageComponent }    
 ];

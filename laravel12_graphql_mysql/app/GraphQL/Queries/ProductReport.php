@@ -17,6 +17,8 @@ final readonly class ProductReport
      */
     public function __invoke($_, array $args): array
     {
+        ini_set('memory_limit', '712M'); 
+        set_time_limit(300); // 5 minutes
         $products = Product::all(); 
 
         $path = public_path('images/logo.png'); 
@@ -24,9 +26,6 @@ final readonly class ProductReport
         $data = file_get_contents($path);
         $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
 
-        // $pdf = Pdf::loadView('pdf.product_report', compact('products'))
-        //     ->setPaper('a4', 'portrait')
-        //     ->setOption('isPhpEnabled', true);
         $pdf = Pdf::loadView('pdf.product_report', [
             'products' => $products,
             'logo' => $logoBase64

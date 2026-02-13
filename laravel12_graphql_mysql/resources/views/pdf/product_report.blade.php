@@ -1,6 +1,9 @@
 <html>
 <head>
    <style>
+        body {
+            background-color: #000;
+        }
         @page {
             margin: 100px 25px;
         }

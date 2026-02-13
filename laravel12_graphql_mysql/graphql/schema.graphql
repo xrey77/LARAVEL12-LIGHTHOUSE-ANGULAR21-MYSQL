@@ -1,8 +1,7 @@
 "A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
 scalar Upload @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Upload")
-scalar Decimal @scalar(class: "MLL\\GraphQLScalars\\Decimal")
-
+#scalar Decimal @scalar(class: "MLL\\GraphQLScalars\\Decimal")
 
 "Indicates what fields are available at the top level of a query operation."
 type Query {
@@ -32,7 +31,7 @@ type Query {
     ): [Product!]! @paginate(resolver: "App\\GraphQL\\Queries\\ProductsSearch" defaultCount: 5)
 
     salesChart: [Sale]! @all
-#    productReport: String!
+    productData: [Product!]! @all
     productReport: PdfResponse! @field(resolver: "App\\GraphQL\\Queries\\ProductReport")
 }
 
@@ -40,8 +39,6 @@ type PdfResponse {
     filename: String!
     base64: String!
 }
-
-
 
 type Sale {
     id: ID!
@@ -84,7 +81,7 @@ type User {
     updated_at: DateTime!
 }
 
-#=====USER REGISTRATION=====
+#USER REGISTRATION
 type SignupResponse {
     message: String!
     user: User
@@ -99,7 +96,7 @@ input SignupInput {
     password: String!
 }
 
-#=====USER LOGIN===========
+#USER LOGIN
 input LoginInput {
     username: String!
     password: String!
@@ -111,7 +108,7 @@ type LoginResponse {
     user: User
 }
 
-#======UPDATE PROFILE======
+#UPDATE PROFILE
 input ProfileInput {
     id: Int!
     firstname: String!
@@ -124,7 +121,7 @@ type ProfileResponse {
     user: User
 }
 
-#=====CHANGE PASSWORD======
+#CHANGE PASSWORD
 input PasswordInput {
     id: Int!
     password: String!
@@ -146,7 +143,7 @@ type MfaResponse {
     user: User
 }
 
-#=====Multi-Factor Authentication Verification========
+#Multi-Factor Authentication Verification
 input VerificationInput {
     id: Int!
     otp: String!
@@ -157,7 +154,7 @@ type VerificationResponse {
     user: User
 }
 
-#====Upload Picture===============
+#Upload Picture
 input UploadInput {
     id: Int!
     profilepic: Upload!
@@ -167,7 +164,6 @@ type UploadResponse {
     message: String
     user: User
 }
-
 
 type Mutation {
     registerUser(input: SignupInput! @spread): SignupResponse! @field(resolver: "App\\GraphQL\\Mutations\\CreateUser")

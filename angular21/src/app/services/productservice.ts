@@ -1,13 +1,17 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {  map, Observable } from 'rxjs';
+import { Apollo, gql } from 'apollo-angular';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class Productservice {
   private apiUrl = "http://127.0.0.1:8000/graphql";
   private http = inject(HttpClient);
+  private readonly apollo = inject(Apollo);
+  
 
   public sendSearchRequest(page: number, keyword: any): Observable<any>
   {
@@ -42,6 +46,24 @@ export class Productservice {
 
   }
 
+  public productDataRequest(): Observable<any> {
+    return this.apollo.watchQuery<any>({
+      query: gql`
+        query ProductData {
+          productData {
+            id
+            category
+            descriptions
+            qty
+            unit
+            sellprice
+            productpicture
+          }
+        }
+      `,
+    }).valueChanges;
+  }
+ 
   public sendProductRequest(page: number): Observable<any>
   {
     const LIST_QUERY = `
@@ -71,7 +93,6 @@ export class Productservice {
           "page": page
        }
     });
-
   } 
   
 public showPdfReport(): Observable<Blob> {
@@ -90,7 +111,6 @@ public showPdfReport(): Observable<Blob> {
 
     return this.http.post<any>(this.apiUrl, REPORT_QUERY, { headers }).pipe(
       map(res => {
-        console.log(res);
         if (res.errors) {
           throw new Error(res.errors[0].message);
         }

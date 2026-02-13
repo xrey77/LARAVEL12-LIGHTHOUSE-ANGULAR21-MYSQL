@@ -1,5 +1,5 @@
 @if (pdfUrl) {
-  <div class="pdf-container">
+  <div class="pdf-container bg-dark">
     <object 
       [data]="pdfUrl" 
       type="application/pdf" 
@@ -12,5 +12,5 @@
     </object>
   </div>
 } @else {
-  <p>Loading report...</p>
+  <p class="text-center mt-5">Loading report...</p>
 }
