@@ -34,7 +34,7 @@ export class Prodlist {
       next: (res: any) => {
         
           if (res.data.errors) {
-            this.message = res.errors[0].message;
+            this.message = res.data.errors[0].message;
             setTimeout(() => {
                this.message = '';
             }, 3000);

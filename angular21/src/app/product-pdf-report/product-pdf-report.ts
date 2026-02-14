@@ -22,10 +22,23 @@ export class ProductPdfReport {
     
   }
 
+async getBase64ImageFromUrl(imageUrl: string): Promise<string> {
+  const res = await fetch(imageUrl);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => resolve(reader.result as string), false);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}  
+
 productDataList() {
   this.productsService.productDataRequest().subscribe({
     next: async (res) => {
       if (res.data) {
+
+        const logoBase64 = await this.getBase64ImageFromUrl('/images/logo.png');
         const data = res.data.productData;
         this.products.set(data);
 
@@ -35,6 +48,12 @@ productDataList() {
         
         const docDefinition: TDocumentDefinitions = {
           content: [
+            {
+              image: logoBase64,
+              width: 150,
+              alignment: 'left',
+              margin: [0, 0, 0, 20]
+            },            
           {
             stack: [
               { text: 'Monthly Sales Report', style: 'header' },

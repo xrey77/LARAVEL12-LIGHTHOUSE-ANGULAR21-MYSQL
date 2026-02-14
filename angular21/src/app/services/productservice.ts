@@ -130,8 +130,17 @@ public showPdfReport(): Observable<Blob> {
     );            
 }
 
-  public showSalesGraph(): Observable<Blob> {
-    return this.http.get("http://localhost:5270/sales/chart", { responseType: 'blob' });
+  public showSalesGraph(): Observable<any> {
+    return this.apollo.watchQuery<any>({
+      query: gql`
+        query SalesChart {
+          salesChart {
+            amount
+            date
+          }
+        }
+      `,
+    }).valueChanges;
   }
   
 

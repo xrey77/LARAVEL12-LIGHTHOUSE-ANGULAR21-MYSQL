@@ -21,9 +21,9 @@ type Query {
       username: String @where(operator: "like")
     ): [User!]! @paginate(defaultCount: 10)
 
-    getUsers: [User!]! @all
-    getUserById(id: Int! @eq): User
-    getByUsername(username: String! @eq): User @first
+    getUsers: [User!]! @guard @all 
+    getUserById(id: Int! @eq): User @guard 
+    getByUsername(username: String! @eq): User @guard @first
 
     productsList(first: Int): [Product!]! @paginate(type: PAGINATOR)
     productsSearch(
@@ -168,11 +168,11 @@ type UploadResponse {
 type Mutation {
     registerUser(input: SignupInput! @spread): SignupResponse! @field(resolver: "App\\GraphQL\\Mutations\\CreateUser")
     signIn(input: LoginInput! @spread): LoginResponse! @field(resolver: "App\\GraphQL\\Mutations\\UserLogin")
-    updateProfile(input: ProfileInput! @spread): ProfileResponse! @field(resolver: "App\\GraphQL\\Mutations\\UpdateProfile")
-    changePassword(input: PasswordInput! @spread): PasswordResponse! @field(resolver: "App\\GraphQL\\Mutations\\ChangePassword")
-    mfaActivation(input: MfaInput! @spread): MfaResponse! @field(resolver: "App\\GraphQL\\Mutations\\MfaActivation")
-    mfaVerification(input: VerificationInput! @spread): VerificationResponse! @field(resolver: "App\\GraphQL\\Mutations\\MfaVerification")
-    uploadPicture(id: Int! profilepic: Upload! @spread): UploadResponse! @field(resolver: "App\\GraphQL\\Mutations\\UploadPicture")
+    updateProfile(input: ProfileInput! @spread): ProfileResponse! @guard @field(resolver: "App\\GraphQL\\Mutations\\UpdateProfile")
+    changePassword(input: PasswordInput! @spread): PasswordResponse! @guard @field(resolver: "App\\GraphQL\\Mutations\\ChangePassword")
+    mfaActivation(input: MfaInput! @spread): MfaResponse! @guard @field(resolver: "App\\GraphQL\\Mutations\\MfaActivation")
+    mfaVerification(input: VerificationInput! @spread): VerificationResponse! @guard @field(resolver: "App\\GraphQL\\Mutations\\MfaVerification")
+    uploadPicture(id: Int! profilepic: Upload! @spread): UploadResponse! @guard @field(resolver: "App\\GraphQL\\Mutations\\UploadPicture")
 }
 
 

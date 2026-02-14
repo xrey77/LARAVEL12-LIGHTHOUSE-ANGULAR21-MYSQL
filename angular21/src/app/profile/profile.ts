@@ -240,7 +240,7 @@ export class Profile implements OnInit  {
   enableMFA(event: any) {
     event.preventDefault();    
     this.profileMsg.set("activating...");
-    this.profileService.ActivateMFA(this.userId, true).subscribe({
+    this.profileService.ActivateMFA(this.userId, true, this.jwttoken).subscribe({
       next: (res: any) => {
           if (res.data.errors) {
             this.profileMsg.set(res.errors[0].message);
@@ -271,7 +271,7 @@ export class Profile implements OnInit  {
   disableMFA(event: any) {
     event.preventDefault();      
     this.profileMsg.set("de-activating...");
-    this.profileService.ActivateMFA(this.userId, false).subscribe({
+    this.profileService.ActivateMFA(this.userId, false, this.jwttoken).subscribe({
       next: (res: any) => {
 
           if (res.data.errors) {

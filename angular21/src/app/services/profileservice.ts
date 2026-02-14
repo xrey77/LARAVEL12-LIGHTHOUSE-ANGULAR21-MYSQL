@@ -10,6 +10,7 @@ export class Profileservice {
   private apiUrl = "http://127.0.0.1:8000/graphql";
   private http = inject(HttpClient)
     
+
   public getUserbyId(idno: number, token: any): Observable<any> {
 
     const GETUSERID_QUERY = `
@@ -26,17 +27,21 @@ export class Profileservice {
           }
       }
     `
-      return this.http.post(this.apiUrl, {
-      query: GETUSERID_QUERY,
-      variables: { 
-          "id": idno
-       }
-    });
+      const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`
+        });
 
-
+      return this.http.post(
+        this.apiUrl, 
+        {
+          query: GETUSERID_QUERY,
+          variables: { id: idno }
+        },
+        { headers }
+      );        
   }
 
-  public ActivateMFA(idno: number, isenabled: boolean) {
+  public ActivateMFA(idno: number, isenabled: boolean, token: string) {
     const MFAACTIVATIOIN_QUERY = `
         mutation MfaActivation($input: MfaInput!) {
             mfaActivation(input: $input) {
@@ -48,15 +53,23 @@ export class Profileservice {
             }
         }
       `
-      return this.http.post(this.apiUrl, {
-      query: MFAACTIVATIOIN_QUERY,
-      variables: { 
-        input: {
-          "id": idno,
-          "twofactorenabled": isenabled,
-        }
-       }
-    });
+      const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`
+        });
+
+      return this.http.post(
+        this.apiUrl, 
+        {
+          query: MFAACTIVATIOIN_QUERY,
+          variables: { 
+            input: {
+              "id": idno,
+              "twofactorenabled": isenabled,
+            }
+          }
+        },
+        { headers }
+      );        
   }
 
   public UploadPicture(idno: number, file: File, token: any): Observable<any> {
@@ -87,7 +100,11 @@ export class Profileservice {
         formData.append('map', JSON.stringify(map));
         formData.append('0', file);
 
-        return this.http.post(this.apiUrl, formData);    
+        const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`
+        });
+
+        return this.http.post(this.apiUrl, formData, { headers });        
   }
 
   public sendProfileRequest(idno: number, userdtls: any, token: any): Observable<any> {
@@ -101,18 +118,26 @@ export class Profileservice {
             }
         }
       `
-      return this.http.post(this.apiUrl, {
-      query: PROFILEUPDATE_QUERY,
-      variables: { 
-        input: {
-          "id": idno,
-          "firstname": userdtls.firstname,
-          "lastname": userdtls.lastname,
-          "mobile": userdtls.mobile
-        }
-       }
-    });
-
+      
+      const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`
+        });      
+      
+      return this.http.post(
+        this.apiUrl, 
+        {
+          query: PROFILEUPDATE_QUERY,
+          variables: { 
+            input: {
+              "id": idno,
+              "firstname": userdtls.firstname,
+              "lastname": userdtls.lastname,
+              "mobile": userdtls.mobile
+            }
+          }
+        },
+        { headers }
+      );        
   }  
 
   public sendNewpasswordRequest(idno: number, userdtls: any, token: any): Observable<any> {
@@ -126,16 +151,23 @@ export class Profileservice {
             }
         }
       `
-      return this.http.post(this.apiUrl, {
-      query: CHANGEPASSWORD_QUERY,
-      variables: { 
-        input: {
-          "id": idno,
-          "password": userdtls.password,
-        }
-       }
-    });
+      const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`
+        });
 
+      return this.http.post(
+        this.apiUrl, 
+        {
+          query: CHANGEPASSWORD_QUERY,
+          variables: { 
+            input: {
+              "id": idno,
+              "password": userdtls.password,
+            }
+          }
+        },
+        { headers }
+      );        
   }  
   
 }

@@ -23,15 +23,23 @@ public sendMfaValidation(idno: number, userdtls: any, token: any): Observable<an
             }
         }
       `
-      return this.http.post(this.apiUrl, {
-      query: TOTP_QUERY,
-      variables: { 
-        input: {
-          "id": idno,
-          "otp": userdtls.otp,
-        }
-       }
-    });
-};
-  
+
+      const headers = new HttpHeaders({
+          'Authorization': `Bearer ${token}`
+        });
+
+      return this.http.post(
+        this.apiUrl, 
+        {
+          query: TOTP_QUERY,
+          variables: { 
+            input: {
+              "id": idno,
+              "otp": userdtls.otp,
+            }
+          }
+        },
+        { headers }
+      );        
+  };  
 }
